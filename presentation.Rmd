@@ -470,20 +470,21 @@ Simulated data
 
 ## Feasible Space Analysis
 
-TODO: basic efficient frontier
+![](figures/basic_mv_ef.png)
 
 <!--
 show the efficient frontier
 
 we can see what the hull looks like, but what does the entire space of feasible
 portfolios look like
+
+full investment and long onlg
 -->
 
 ---
 
-## Feasible Space with Relaxed Constraints
-
-TODO
+## Entire Feasible Space with Relaxed Constraints
+![](figures/p1_ef.png)
 
 
 <!--
@@ -494,7 +495,7 @@ feasible space with weights sum to 1 and long only constraints
 
 ## Feasible Space with Box Constraints
 
-TODO
+![](figures/p2_ef.png)
 
 
 
@@ -504,24 +505,41 @@ feasible space with box constraints
 
 ---
 
-## Feasible Space with Position Limit Constraints
+## Feasible Space with Long Only and Group Constraints
 
-TODO
+![](figures/p3_ef.png)
 
 
 <!--
-feasible space with position limit constraints
+note that box constraints are relaxed
+
+feasible space with long only and group constraints
 -->
 
 ---
 
-## Feasible Space: Out of Sample
+## Feasible Space with Long Only and Position Limit Constraints
 
-TODO
+![](figures/p4_ef.png)
 
 
 <!--
-feasible space with out of sample
+note that box constraints are relaxed
+
+feasible space with long only and position limit constraints
+-->
+
+---
+
+## Feasible Space with Shorting Allowed and Leverage Constraints
+
+![](figures/p5_ef.png)
+
+
+<!--
+note that box constraints are relaxed
+
+feasible space with long only and position limit constraints
 -->
 
 ---
