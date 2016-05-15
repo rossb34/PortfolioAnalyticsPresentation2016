@@ -1,8 +1,14 @@
+library(PortfolioAnalytics)
+
+# common resolution for projectors is 1024 × 768
+w <- 1024 * 0.8
+h <- 768 * 0.8
+
 source("data_prep.R")
 
-library(PortfolioAnalytics)
-data(edhec)
-R <- edhec[,1:8]
+
+R <- edhec["/2014",1:8]
+R.os <- edhec["/2015",1:8]
 #R <- edhec
 my_colors <- c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c")
 
@@ -16,20 +22,39 @@ x.upper <- max(x.assets) * 1.1
 y.lower <- min(0, min(y.assets) * 0.9)
 y.upper <- max(y.assets) * 1.1
 
-# define a baseline portfolio with full investment and long only constraint
-portf.baseline <- portfolio.spec(colnames(R))
-portf.baseline <- add.constraint(portf.baseline, type="weight_sum",
-                           min_sum=0.99, max_sum=1.01)
-portf.baseline <- add.constraint(portf.baseline, type="box", min=0, max=1)
+# define base portfolio
+portf.base <- portfolio.spec(colnames(R))
+# the only thing I will be changing is constraints so define all the objectives
+# set multiplier of 0 so the values are calculated, but no optimization is done
+portf.base <- add.objective(portf.base, type="return", name="mean", multiplier=0)
+portf.base <- add.objective(portf.base, type="risk", name="StdDev", multiplier=0)
+portf.base <- add.objective(portf.base, type="risk", name="ES", arguments=list(p=0.9), multiplier=0)
+
+##### Example 0: Basic Efficient Frontier #####
+# full investment and long only constraint
+p0 <- portf.base
+p0 <- add.constraint(p0, type="weight_sum",
+                     min_sum=0.99, max_sum=1.01)
+p0 <- add.constraint(p0, type="box", min=0, max=1)
 
 # create an efficient frontier that only shows the hull and assets
-ef <- create.EfficientFrontier(R, portfolio = portf.baseline,
+ef <- create.EfficientFrontier(R, portfolio = p0,
                                type = "mean-StdDev", n.portfolios = 100)
+
+png("figures/basic_mv_ef.png", width = w, height = h, units = "px")
 chart.EfficientFrontier(ef, match.col="StdDev", pch=18, col="lightblue")
+dev.off()
+
+
+##### Example 1: Full Investment, Long Only #####
+p1 <- portf.base
+p1 <- add.constraint(p1, type="weight_sum",
+                     min_sum=0.99, max_sum=1.01)
+p1 <- add.constraint(p1, type="box", min=0, max=1)
 
 # generate random portfolios for the baseline portfolio
-rp.base <- random_portfolios(portf.baseline, permutations=5000,
-                             rp_method='sample')
+rp1 <- random_portfolios(p1, permutations=5000,
+                         rp_method='sample')
 # compute mean and standard deviation of baseline portfolio
 rp.base.mean <- apply(rp.base, 1, function(x) mean(R %*% x))
 rp.base.sd <- apply(rp.base, 1, function(x) StdDev(R, weights=x))
