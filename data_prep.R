@@ -1,3 +1,7 @@
+Sys.setenv(TZ="UTC")
+library(quantmod)
+library(PerformanceAnalytics)
+
 # Load the updated edhec dataset
 load("data/edhec.rda")
 
@@ -7,7 +11,9 @@ colnames(edhec) <- c("CA", "CTAG", "DS", "EM", "EMN", "ED", "FIA", "GM", "LSE", 
 
 
 if(file.exists("data/sector.rda")){
+  # load the sector etf returns and the market data environment
   load("data/sector.rda")
+  load("data/md_env.RData")
 } else {
   md <- new.env()
   # SP500 ETF as a proxy of the market
@@ -26,10 +32,12 @@ if(file.exists("data/sector.rda")){
       colnames(x) <- gsub("x",symbol,colnames(x))
       md[[symbol]] <- x
   }
-  ret.sector <- na.omit(Return.calculate(do.call(cbind, eapply(md, function(x) Ad(x))), "discrete"))
+  ret <- na.omit(Return.calculate(do.call(cbind, eapply(md, function(x) Ad(x))), "discrete"))
   colnames(ret) <- gsub("\\.[^.]*$", "", colnames(ret))
   # sector and market returns
   R.sector <- ret[,sec.sym]
   R.mkt <- ret[, mkt.sym]
-  save(ret.sector, file="data/sector.rda")
+  # save the sector etf returns and the market data environment
+  save(ret, file="data/sector.rda")
+  save(md, file="data/md_env.RData")
 }
