@@ -6,8 +6,9 @@ h <- 768 * 0.8
 
 source("data_prep.R")
 
-
+# in sample
 R <- edhec["/2014",1:8]
+# out of sample
 R.os <- edhec["/2015",1:8]
 #R <- edhec
 my_colors <- c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c")
@@ -53,87 +54,151 @@ p1 <- add.constraint(p1, type="weight_sum",
 p1 <- add.constraint(p1, type="box", min=0, max=1)
 
 # generate random portfolios for the baseline portfolio
-rp1 <- random_portfolios(p1, permutations=5000,
-                         rp_method='sample')
-# compute mean and standard deviation of baseline portfolio
-rp.base.mean <- apply(rp.base, 1, function(x) mean(R %*% x))
-rp.base.sd <- apply(rp.base, 1, function(x) StdDev(R, weights=x))
+rp1 <- random_portfolios(p1, permutations=5000, rp_method='sample')
 
-# plot the feasible space of the baseline portfolio
+opt1 <- optimize.portfolio(R, p1, optimize_method="random", rp=rp1, trace=TRUE)
+xt1 <- extractStats(opt1)
+p1.mean <- xt1[,"mean"]
+p1.sd <- xt1[,"StdDev"]
+p1.es <- xt1[,"ES"]
+
+# plot the feasible space
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
      ylab="mean", xlab="StdDev", cex.axis=0.8)
 # baseline portfolio feasible space
-points(x=rp.base.sd, y=rp.base.mean, col=my_colors[2], pch=1)
+points(x=p1.sd, y=p1.mean, col=my_colors[2], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
 
-# simple case of box constraints
-p1 <- portfolio.spec(colnames(R))
-p1 <- add.constraint(p1, type="weight_sum", min_sum=0.99, max_sum=1.01)
-p1 <- add.constraint(p1, type="box", min=0.05, max=0.6)
-p1 <- add.objective(p1, type="return", name="mean")
-p1 <- add.objective(p1, type="risk", name="StdDev")
-rp1 <- random_portfolios(p1, permutations=5000, rp_method='sample')
-opt1 <- optimize.portfolio(R, portfolio=p1, optimize_method="random",
-                              rp=rp1, trace = TRUE)
-xt1 <- extractStats(opt1)
 
-# group constraints
-p2 <- portfolio.spec(colnames(R))
-p2 <- add.constraint(p2, type="weight_sum", min_sum=0.99, max_sum=1.01)
-p2 <- add.constraint(p2, type="box", min=0.05, max=0.6)
-p2 <- add.constraint(p2, type="group", groups=list(1:5, 5:8),
-                        group_min=c(0.1, 0.15), group_max=c(0.85, 0.55),
-                        group_labels=c("GroupA", "GroupB"))
-p2 <- add.objective(p2, type="return", name="mean")
-p2 <- add.objective(p2, type="risk", name="StdDev")
+##### Example 2: Full Investment, Long Only Box Constraints #####
+p2 <- portf.base
+p2 <- add.constraint(p2, type="weight_sum",
+                     min_sum=0.99, max_sum=1.01)
+p2 <- add.constraint(p2, type="box", min=0.1, max=0.85)
+
+# generate random portfolios for the baseline portfolio
 rp2 <- random_portfolios(p2, permutations=5000, rp_method='sample')
-opt2 <- optimize.portfolio(R, portfolio=p2, optimize_method="random",
-                           rp=rp2, trace = TRUE)
+
+opt2 <- optimize.portfolio(R, p2, optimize_method="random", rp=rp2, trace=TRUE)
 xt2 <- extractStats(opt2)
+p2.mean <- xt2[,"mean"]
+p2.sd <- xt2[,"StdDev"]
+p2.es <- xt2[,"ES"]
 
-# box and position limit constraints
-p3 <- portfolio.spec(colnames(R))
-p3 <- add.constraint(p3, type="weight_sum", min_sum=0.99, max_sum=1.01)
-p3 <- add.constraint(p3, type="box", min=0, max=1)
-p3 <- add.constraint(p3, type="position_limit", max_pos=4)
-p3 <- add.objective(p3, type="return", name="mean")
-p3 <- add.objective(p3, type="risk", name="StdDev")
-rp3 <- random_portfolios(p3, permutations=5000, rp_method='sample')
-opt3 <- optimize.portfolio(R, portfolio=p3, optimize_method="random",
-                           rp=rp3, trace = TRUE)
-xt3 <- extractStats(opt3)
-plot(x=xt3[,"StdDev"], xt3[,"mean"])
-
-
-
-
-# chart.RiskReward(opt.new, risk.col = "StdDev",
-#                  xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper))
-# rp.new.mean <- apply(rp.new, 1, function(x) mean(R %*% x))
-# rp.new.sd <- apply(rp.new, 1, function(x) StdDev(R, weights=x))
-
-portf.new <- add.constraint(portf.new, type="position_limit", max_pos=3)
-# portf.new <- add.constraint(portf.new,type="diversification", div_target=0.7)
-
-
-# compute mean and standard deviation of new portfolio
-rp.new <- random_portfolios(portf.new, permutations=5000, rp_method='sample')
-rp.new.mean <- apply(rp.new, 1, function(x) mean(R %*% x))
-rp.new.sd <- apply(rp.new, 1, function(x) StdDev(R, weights=x))
-sr <- rp.new.mean / rp.new.sd
-rp.new[which.max(sr),]
-points(x=rp.new.sd[which.max(sr)], y=rp.new.mean[which.max(sr)], col="orange", pch=1)
-
-
-plot(x=x.assets, y=y.assets, col="black", main="Random Portfolio Methods",
+plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
-     ylab="mean", xlab="StdDev", pch=16)
-points(x=rp.base.sd, y=rp.base.mean, col=my_colors[2], pch=1)
-points(x=rp.new$sd, y=rp.new$mean, col=my_colors[4], pch=5)
-legend("bottomright", legend=c("baseline portfolio", "new portfolio"),
-       col=my_colors[c(2,4)],
-       pch=c(1, 5), bty="n")
+     ylab="mean", xlab="StdDev", cex.axis=0.8)
+# baseline portfolio feasible space
+points(x=p1.sd, y=p1.mean, col=my_colors[2], pch=1)
+points(x=p2.sd, y=p2.mean, col=my_colors[3], pch=1)
+# assets
+points(x=x.assets, y=y.assets, col="black", pch=19)
+text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
 
+##### Example 3: Full Investment, Long Only and Group Constraints #####
+p3 <- portf.base
+p3 <- add.constraint(p3, type="weight_sum",
+                     min_sum=0.99, max_sum=1.01)
+p3 <- add.constraint(p3, type="box", min=0, max=1)
+p3 <- add.constraint(p3, type="group", groups=list(1:4, 5:8),
+                        group_min=c(0.1, 0.15), group_max=c(0.65, 0.55),
+                        group_labels=c("GroupA", "GroupB"))
+
+# generate random portfolios for the baseline portfolio
+rp3 <- random_portfolios(p3, permutations=5000, rp_method='sample')
+
+opt3 <- optimize.portfolio(R, p3, optimize_method="random", rp=rp3, trace=TRUE)
+xt3 <- extractStats(opt3)
+p3.mean <- xt3[,"mean"]
+p3.sd <- xt3[,"StdDev"]
+p3.es <- xt3[,"ES"]
+
+plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
+     xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
+     ylab="mean", xlab="StdDev", cex.axis=0.8)
+# baseline portfolio feasible space
+points(x=p1.sd, y=p1.mean, col=my_colors[2], pch=1)
+points(x=p3.sd, y=p3.mean, col=my_colors[3], pch=1)
+# assets
+points(x=x.assets, y=y.assets, col="black", pch=19)
+text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+
+##### Example 4: Full Investment, Long Only Box and Position Limit Constraints #####
+p4 <- portf.base
+p4 <- add.constraint(p4, type="weight_sum",
+                     min_sum=0.99, max_sum=1.01)
+p4 <- add.constraint(p4, type="box", min=0, max=1)
+p4 <- add.constraint(p4, type="position_limit", max_pos=2)
+
+# generate random portfolios for the baseline portfolio
+rp4 <- random_portfolios(p4, permutations=5000, rp_method='sample')
+
+opt4 <- optimize.portfolio(R, p4, optimize_method="random", rp=rp4, trace=TRUE)
+xt4 <- extractStats(opt4)
+p4.mean <- xt4[,"mean"]
+p4.sd <- xt4[,"StdDev"]
+p4.es <- xt4[,"ES"]
+
+plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
+     xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
+     ylab="mean", xlab="StdDev", cex.axis=0.8)
+# baseline portfolio feasible space
+points(x=p1.sd, y=p1.mean, col=my_colors[2], pch=1)
+points(x=p4.sd, y=p4.mean, col=my_colors[3], pch=1)
+# assets
+points(x=x.assets, y=y.assets, col="black", pch=19)
+text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+
+##### Example 5: Full Investment, Allow Shorts with Box and Leverage Constraints #####
+p5 <- portf.base
+p5 <- add.constraint(p5, type="weight_sum", 
+                     min_sum=0.99, max_sum=1.01)
+p5 <- add.constraint(p5, type="box", min=-0.15, max=0.6)
+p5 <- add.constraint(p5, type="leverage_exposure", leverage=1.6)
+
+# generate random portfolios for the baseline portfolio
+rp5 <- random_portfolios(p5, permutations=5000, rp_method='sample')
+
+opt5 <- optimize.portfolio(R, p5, optimize_method="random", rp=rp5, trace=TRUE)
+xt5 <- extractStats(opt5)
+p5.mean <- xt5[,"mean"]
+p5.sd <- xt5[,"StdDev"]
+p5.es <- xt5[,"ES"]
+
+plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
+     xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
+     ylab="mean", xlab="StdDev", cex.axis=0.8)
+# baseline portfolio feasible space
+points(x=p1.sd, y=p1.mean, col=my_colors[2], pch=1)
+points(x=p5.sd, y=p5.mean, col=my_colors[3], pch=1)
+# assets
+points(x=x.assets, y=y.assets, col="black", pch=19)
+text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+
+##
+
+##### scratch #####
+# plot the feasible space of the baseline portfolio
+# plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
+#      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
+#      ylab="mean", xlab="StdDev", cex.axis=0.8)
+# # baseline portfolio feasible space
+# points(x=rp.base.sd, y=rp.base.mean, col=my_colors[2], pch=1)
+# # assets
+# points(x=x.assets, y=y.assets, col="black", pch=19)
+# text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+#
+# chart.xt <- function(R, xt, risk=c("StdDev", "ES"), ...){
+#   # compute risk and return metrics of asset returns
+#   x.sd.assets <- StdDev(R)
+#   y.assets <- colMeans(R)
+#   
+#   # set up chart ranges
+#   x.lower <- min(0, min(x.assets) * 0.9)
+#   x.upper <- max(x.assets) * 1.1
+#   y.lower <- min(0, min(y.assets) * 0.9)
+#   y.upper <- max(y.assets) * 1.1
+# }
