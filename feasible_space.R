@@ -62,6 +62,7 @@ p1.mean <- xt1[,"mean"]
 p1.sd <- xt1[,"StdDev"]
 p1.es <- xt1[,"ES"]
 
+png("figures/p1_ef.png", width = w, height = h, units = "px")
 # plot the feasible space
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
@@ -71,7 +72,7 @@ points(x=p1.sd, y=p1.mean, col=my_colors[2], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
-
+dev.off()
 
 ##### Example 2: Full Investment, Long Only Box Constraints #####
 p2 <- portf.base
@@ -88,6 +89,7 @@ p2.mean <- xt2[,"mean"]
 p2.sd <- xt2[,"StdDev"]
 p2.es <- xt2[,"ES"]
 
+png("figures/p2_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
      ylab="mean", xlab="StdDev", cex.axis=0.8)
@@ -97,6 +99,7 @@ points(x=p2.sd, y=p2.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+dev.off()
 
 ##### Example 3: Full Investment, Long Only and Group Constraints #####
 p3 <- portf.base
@@ -116,6 +119,7 @@ p3.mean <- xt3[,"mean"]
 p3.sd <- xt3[,"StdDev"]
 p3.es <- xt3[,"ES"]
 
+png("figures/p3_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
      ylab="mean", xlab="StdDev", cex.axis=0.8)
@@ -125,6 +129,7 @@ points(x=p3.sd, y=p3.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+dev.off()
 
 ##### Example 4: Full Investment, Long Only Box and Position Limit Constraints #####
 p4 <- portf.base
@@ -142,6 +147,7 @@ p4.mean <- xt4[,"mean"]
 p4.sd <- xt4[,"StdDev"]
 p4.es <- xt4[,"ES"]
 
+png("figures/p4_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
      ylab="mean", xlab="StdDev", cex.axis=0.8)
@@ -151,6 +157,7 @@ points(x=p4.sd, y=p4.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+dev.off()
 
 ##### Example 5: Full Investment, Allow Shorts with Box and Leverage Constraints #####
 p5 <- portf.base
@@ -168,6 +175,7 @@ p5.mean <- xt5[,"mean"]
 p5.sd <- xt5[,"StdDev"]
 p5.es <- xt5[,"ES"]
 
+png("figures/p5_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
      xlim=c(x.lower, x.upper), ylim=c(y.lower, y.upper),
      ylab="mean", xlab="StdDev", cex.axis=0.8)
@@ -177,6 +185,7 @@ points(x=p5.sd, y=p5.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+dev.off()
 
 ##
 
