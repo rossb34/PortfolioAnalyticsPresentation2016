@@ -4,7 +4,7 @@
 # List the R files used
 # RFILES := data_prep.R data_analysis.R optimize.R optimization_analysis.R
 
-RFILES := data_prep.R rp_example.R
+RFILES := data_prep.R rp_example.R feasible_space.R
 
 # Rout indicator files to show R file has run
 # R CMD BATCH will generate .Rout files after running
@@ -44,6 +44,10 @@ optimize.Rout: optimize.R
 # Data prep
 data_prep.Rout: data_prep.R
 	R CMD BATCH --vanilla data_prep.R
+
+# Feasible space analysis
+feasible_space.Rout: feasible_space.R
+	R CMD BATCH --vanilla feasible_space.R
 
 lwShrink.Rout: R/lwShrink.R
 	R CMD BATCH --vanilla R/lwShrink.R
