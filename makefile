@@ -2,7 +2,9 @@
 # https://www.cs.umd.edu/class/fall2002/cmsc214/Tutorial/makefile.html
 
 # List the R files used
-RFILES := data_prep.R data_analysis.R optimize.R optimization_analysis.R
+# RFILES := data_prep.R data_analysis.R optimize.R optimization_analysis.R
+
+RFILES := data_prep.R rp_example.R
 
 # Rout indicator files to show R file has run
 # R CMD BATCH will generate .Rout files after running
@@ -48,6 +50,9 @@ lwShrink.Rout: R/lwShrink.R
 
 charting.Rout: R/charting.R
 	R CMD BATCH --vanilla R/charting.R
+
+rp_example.Rout: rp_example.R
+	R CMD BATCH --vanilla rp_example.R
 
 # Use Rscript to run the necessary R files as an alternative to R CMD BATCH
 runR:
