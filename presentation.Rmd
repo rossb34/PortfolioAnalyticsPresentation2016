@@ -1,8 +1,8 @@
 ---
-title       : Advanced Moment Estimation & Optimization with PortfolioAnalytics
-subtitle    : R/Finance 2015
+title       : Feasible Space Analysis & Heirerarchical Optimization with PortfolioAnalytics
+subtitle    : R/Finance 2016
 author      : Ross Bennett
-date        : May 29, 2015
+date        : May 20, 2016
 framework   : io2012 # {io2012, html5slides, shower, dzslides, ...}
 ext_widgets : {rCharts: libraries/nvd3}
 widgets     : mathjax
@@ -138,7 +138,7 @@ Highlight a few things about each point
 <!--
 explanation of how the multilayer optimization works
 start with portfolio of subportfolios
-the subportfolios could be countris, sectors, etc.
+the subportfolios could be countries, sectors, etc.
 optimize subportfolios
 this gives us 'n' synthetic return streams for 'n' sub portfolios
 we then optimize the top level portfolio using the 'n' synthetic return streams
@@ -468,406 +468,79 @@ Simulated data
 
 ---
 
-## Meucci Fully Flexible Views
+## Feasible Space Analysis
 
-* Reference Model
-$$ X \sim f_X $$
-
-* Views
-$$ V \equiv g (X) \sim f_V $$
-
-* Express View on Ranking
-$$ m \{ V_1 \} \geq  m \{ V_2 \} \geq ... \geq  m \{ V_K \} $$
-
-* Posterior
-$$ \tilde{f}_x \equiv \underset{f \in V}{\text{ argmin    }} { entropy(f, f_x) } $$
+TODO: basic efficient frontier
 
 <!--
+show the efficient frontier
 
-Key difference between BL and FFV
-The Black-Litterman approach allows the portfolio manager to express views
-on the expected returns vector. The model quantifies views and uncertainty
-of views.
-
-The Meucci FFV framework is more general and allows one to express views on the
-market. 
-
-From Meucci paper
-http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1213325
-
-To obtain the posterior, we interpret the views as statements that distort the
-prior distribution, in such a way that the least possible amount of spurious
-structure is imposed. The natural index for the structure of a distribution is
-its entropy. Therefore we define the posterior distribution as the one that
-minimizes the entropy relative to the prior. Then by opinion pooling we assign
-different confidence levels to different views and users.
-
-Reference Model
-We assume the existence of a risk model, i.e. a model for the joint
-distribution of the risk factors, as represented by its probability density
-function (pdf)
-X \dist f\_X
-
-Views
-In the most general case, the user expresses views on generic functions of the
-market g1 (X) , . . . , gK (X). These functions constitute a K -dimensional
-random variable whose joint distribution is implied by the reference model
-V = g (X) \dist f\_V
-
-views in general are statements on only select features of the distribution of V
-The generalized BL views are not necessarily expressed as equality constraint:
-EP can process views expressed as inequalities. In particular, EP can process
-ordering information, frequent in stock and bond management:
-
-m { V\_1 } >=  m { V\_2 } >= ... >= m { V\_K }
-
-The posterior
-The posterior distribution should satisfy the views without adding additional
-structure and should be as close as possible to the reference model
-
-The posterior market distribution is the one that minimizes the relative
-entropy
-
-perform entropy minimization to obtain posterior
-
-perform entropy minimization between a distribution f and the reference model f_x
-\tilde{f}\_x = argmin{ entropy(f, f\_x) } f \in V stands for all the 
-distributions consistent with the views statement
-
-Confidence
-Opinion Pooling
-\tilde{f}\_x^c = (1 - c) * f\_x + c * \tilde{f}\_x
-pooling parameter c in [0,1] represents the confidence levels in the views
+we can see what the hull looks like, but what does the entire space of feasible
+portfolios look like
 -->
 
 ---
 
-## Almgren-Chriss Portfolios from Sorts
+## Feasible Space with Relaxed Constraints
 
-* Define $ S_1, S_2, ... , S_n $ as the investment universe of $ n $ assets
-
-* Defining Sorts
-  * Single complete sort
-  $$ r_1 \geq r_2 \geq ... \geq r_n $$
-  * Sector based sort
-  * Deciles and other divisions
-  * Single complete sort with longs and shorts
-  * others
-
-* Centroid vector, $ c $, is defined as the center of mass of the set $ Q $.
-  * where $ Q $ is the space of consistent expected returns
+TODO
 
 
 <!--
-
-The Black-Litterman approach allows the portfolio manager to express views
-on the expected returns vector. The model quantifies views and uncertainty
-of views.
-
-Portfolios from Sorts is a method for portfolio optimization based on replacing
-expected returns with information about the order of the expected returns.
-For a single complete sort we assume that each expected return direction is
-equally likely: there is no bias toward some directions over others. The only
-information in the model is the sort itself.
-
-From the paper
-We shall write S1, . . . , Sn for the available investment universe of n stocks.
-In its most general sense, a portfolio sort is a set of inequality relationships
-between the expected returns of these assets. The simplest and most common
-example is a single complete sort which orders all the assets of the portfolio
-by expected return from greatest to least.
-
-r\_1 >= r\_2 >= ... >= r\_n
-
-A sort is a set of beliefs about the first moments of the joint distribution of
-returns
-
-If we have a portfolio of stocks S1,...,Sn ordered so that r1 >= ··· >= rn then
-we are positing two things. First, the obvious, that the expected returns of the
-stocks, or more precisely, the joint distribution of the stocks, respect the
-ordering. Second, this information is the only information we have about the
-expected returns.
-
-the information in an expected return vector relevant for optimization is
-contained completely in its vector direction, not in its magnitude.
-
-centroid vector
-analytical approximation for a single complete sort
-monte carlo estimate for other estimates
-  * sector
-  * sign
-  * buckets
-
+feasible space with weights sum to 1 and long only constraints
 -->
 
 ---
 
-## Example 1 and 2
-Consider an allocation to hedge funds using the EDHEC-Risk Alternative Index as
-a proxy. 
-* Simple example of expressing a view on the order of the expected
-returns of assets using both Meucci's Fully Flexible Views and the 
-Almgren-Chriss framework
-* Establish a quantitative rule for our view on the order of the expected
-returns of assets and test on historical data.
+## Feasible Space with Box Constraints
+
+TODO
 
 
 
 <!--
-EDHEC-Risk Alternative Index is not investable, but offers a good proxy for
-hedge fund style returns. EDHEC data is from 1997-01-31 to 2015-03-31
-
-First example is very simple to demonstrate how this can be done in 
-PortfolioAnalytics to understand the framework. Start with a case of expressing
-a view on the order of the expected returns of assets.
-
-Then examine a more complex problem in which we wish to establish a quantitative
-rule for our view on the order of the expected returns of assets and test on
-historical data to evaluate out of sample performance. Custom moment function
-and periodic rebalancing.
+feasible space with box constraints
 -->
 
 ---
 
-## Example 1: Data and Portfolio
+## Feasible Space with Position Limit Constraints
+
+TODO
+
+
+<!--
+feasible space with position limit constraints
+-->
+
+---
+
+## Feasible Space: Out of Sample
+
+TODO
+
+
+<!--
+feasible space with out of sample
+-->
+
+---
+
+## Heierarchical Optimization Example
+
+TODO
+
+
+<!--
+feasible space with out of sample
+-->
+
+---
+
+## Heirarchical Optimization: Data
 ```{r eval=FALSE}
-# Load package and data
-library(PortfolioAnalytics)
-source("data_prep.R")
-R <- edhec[,1:4]
-funds <- colnames(R)
-
-# Construct portfolio
-meanSD.portf <- portfolio.spec(assets=funds)
-meanSD.portf <- add.constraint(portfolio=meanSD.portf, type="weight_sum",
-                               min_sum=0.99, max_sum=1.01)
-meanSD.portf <- add.constraint(portfolio=meanSD.portf, type="box",
-                               min=0.05, max=0.5)
-meanSD.portf <- add.objective(portfolio=meanSD.portf, type="risk", name="StdDev")
-meanSD.portf <- add.objective(portfolio=meanSD.portf, type="return", name="mean")
-
-# Generate random portfolios for use in the optimization.
-rp <- random_portfolios(meanSD.portf, 5000)
-```
-
----
-
-## Example 1: Express Views
-```{r eval=FALSE}
-# Here we express views on the relative rank of the asset returns
-# E{ R[,2] < R[,3] < R[,1] < R[,4] }
-asset.rank <- c(2, 3, 1, 4)
-```
-
-### Meucci: Fully Flexible Views Framework
-```{r eval=FALSE}
-p <- rep(1 / nrow(R), nrow(R))
-m.moments <- meucci.ranking(R, p, asset.rank)
-```
-
-### Almgren and Chriss: Portfolios from Sorts
-```{r eval=FALSE}
-ac.moments <- list()
-ac.moments$mu <- ac.ranking(R, asset.rank)
-# Sample estimate for second moment
-ac.moments$sigma <- cov(R)
-```
-
-<!--
-meucci.ranking does the entropy minimization and computes the first and second
-moments given the market data and posterior probability.
-
-EntropyProg does the entropy minimization and returns the posterior
-probabilities
-
-ac.ranking computes the estimated centroid vector from a single complete sort
-using the analytical approximation as described in R. Almgren and N. Chriss,
-"Portfolios from Sorts". The centroid is estimated and then scaled such that it
-is on a scale similar to the asset returns. By default, the centroid vector is
-scaled according to the median of the asset mean returns.
-
--->
-
----
-
-## Example 1: Optimization
-
-```{r eval=FALSE}
-# Use moments output from meucci.ranking
-opt.meucci <- optimize.portfolio(R, portfolio=meanSD.portf,
-                                 optimize_method="random",
-                                 rp=rp,
-                                 trace=TRUE,
-                                 momentargs=m.moments)
-
-# Use first moment from ac.ranking. Note second moment is sample covariance
-opt.ac <- optimize.portfolio(R, portfolio=meanSD.portf,
-                             optimize_method="random",
-                             rp=rp,
-                             trace=TRUE,
-                             momentargs=ac.moments)
-```
-
-<!--
-single period optimization
-note the objects passed to momentargs
--->
-
----
-
-## Example 1: Optimization Results Optimal Weights
-![](figures/weights_ex1.png)
-
----
-
-## Example 2: Custom Moment Function
-```{r eval=FALSE, tidy=FALSE}
-moment.ranking <- function(R, n=1, method=c("meucci", "ac")){
-  method <- match.arg(method)
-  tmpR <- apply(tail(R, n), 2, function(x) prod(1 + x) - 1)
-  # Assume that the assets with the highest return will continue to outperform
-  asset.rank <- order(tmpR)
-  switch(method,
-         meucci = {
-           p <- rep(1 / nrow(R), nrow(R))
-           moments <- meucci.ranking(R, p, asset.rank)
-         },
-         ac = {
-           moments <- list()
-           moments$mu <- ac.ranking(R, asset.rank)
-           moments$sigma <- cov(R)
-         })
-  moments
-}
-```
-
-<!--
-meucci.moments computes the first and second moments given the market data and
-posterior probability
--->
-
----
-
-## Example 2: Optimization with Periodic Rebalancing
-
-```{r eval=FALSE, tidy=FALSE}
-opt.bt.meucci <- optimize.portfolio.rebalancing(R, portfolio=meanSD.portf,
-                                                optimize_method="random", rp=rp,
-                                                rebalance_on="quarters",
-                                                training_period=72,
-                                                momentFUN="moment.ranking",
-                                                n=3, method="meucci")
-
-opt.bt.ac <- optimize.portfolio.rebalancing(R, portfolio=meanSD.portf,
-                                            optimize_method="random", rp=rp,
-                                            rebalance_on="quarters",
-                                            training_period=72,
-                                            momentFUN="moment.ranking",
-                                            n=3, method="ac")
-```
-
-<!--
-note the custom moment function and the momentFUN args passed in
--->
-
----
-
-## Example 2: Optimization Results
-![](figures/ret_ex2.png)
-
----
-
-## Example 3: Minimum Expected Shortfall with Risk Budget Limit
-Consider an allocation to equity sectors using 9 sector ETFs. 
-* Raw returns data and sample moment estimates
-* Cleaned returns data and factor model moment estimates
-
-<!--
-We are doing everything wrong in the first case
-number of parameters estimated for each moment
-
-Data of the Select Sector SPDR ETFs
-Daily returns from 1999-01-05 to 2015-05-22 using the adjusted close prices
--->
-
----
-
-## Example 3: Data and Portfolio
-```{r eval=FALSE}
-# Data
-R.raw <- ret.sector
-R <- Return.clean(R.raw, "boudt")
-funds <- colnames(R)
-
-# Construct initial portfolio with basic constraints.
-ES.portf <- portfolio.spec(assets=funds)
-ES.portf <- add.constraint(portfolio=ES.portf, type="weight_sum",
-                           min_sum=0.99, max_sum=1.01)
-ES.portf <- add.constraint(portfolio=ES.portf, type="long_only")
-ES.portf <- add.objective(portfolio=ES.portf, type="risk", name="ES",
-                          arguments=list(p=0.95))
-ES.portf <- add.objective(portfolio=ES.portf, type="risk_budget", 
-                          name="ES", max_prisk=0.25, 
-                          arguments=list(p=0.95))
-# Generate random portfolios
-rp <- random_portfolios(ES.portf, 5000)
-```
-
-
----
-
-## Example 3: Fit Statistical Factor Model
-```{r eval=FALSE, tidy=FALSE}
-# This is not necessary for the optimization, but demonstrates how to extract
-# the moments for use in custom objective function
-fit <- statistical.factor.model(R, k=3)
-
-# Extract the moments
-sigma <- extractCovariance(fit)
-m3 <- extractCoskewness(fit)
-m4 <- extractCokurtosis(fit)
-```
-
----
-
-## Example 3: Custom Moment Function
-```{r eval=FALSE}
-fm.moments <- function(R, k=1){
-  fit <- statistical.factor.model(R=R, k=k)
-  momentargs <- list()
-  momentargs$mu <- matrix(rep(0, ncol(R)),ncol=1)
-  momentargs$sigma <- extractCovariance(fit)
-  momentargs$m3 <- extractCoskewness(fit)
-  momentargs$m4 <- extractCokurtosis(fit)
-  return(momentargs)
-}
-```
-
----
-
-## Example 3: Optimization with Periodic Rebalancing
-```{r eval=FALSE, tidy=FALSE}
-# Higher moment estimates from statistical factor model
-minES.boudt <- optimize.portfolio.rebalancing(R=R, portfolio=ES.portf, 
-                                                momentFUN=fm.moments, k=3,
-                                                optimize_method="random", rp=rp,
-                                                rebalance_on="quarters",
-                                                training_period=1250,
-                                                trace=TRUE)
-
-# Sample estimates of the moments
-minES.sample <- optimize.portfolio.rebalancing(R=R.raw, portfolio=ES.portf, 
-                                                 optimize_method="random", rp=rp,
-                                                 rebalance_on="quarters",
-                                                 training_period=1250,
-                                                 trace=TRUE)
 
 ```
-
----
-
-## Example 3: Optimization Results
-![](figures/ret_ex3.png)
 
 
 ---
@@ -915,11 +588,11 @@ I hope they learned something and are motivated to use PortfolioAnalytics
 
 Source code for the slides
 
-* https://github.com/rossb34/PortfolioAnalyticsPresentation2015
+* https://github.com/rossb34/PortfolioAnalyticsPresentation2016
 
 and view it here
 
-* http://rossb34.github.io/PortfolioAnalyticsPresentation2015/
+* http://rossb34.github.io/PortfolioAnalyticsPresentation2016/
 
 ---
 
