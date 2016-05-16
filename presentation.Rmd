@@ -468,7 +468,50 @@ Simulated data
 
 ---
 
-## Feasible Space Analysis
+## Feasible Space Analysis: Data
+
+Here we will analyse the feasible space of allocations to hedge fund strategies
+
+* EDHEC-Risk Alternative Indexes monthly returns from 1/31/1997 to 12/31/2014
+
+Relative Value | Directional | Other
+-------------- | ----------- | -----------
+Convertible Arbitrage (CA) | CTA Global (CTAG) | Distressed Securites (DS)
+Equity Market Neutral (EMN) | Emerging Markets (EM) | Event Driven (ED)
+Fixed Income Arbitrage (FIA) | Global Macro (GM) |
+
+<!--
+* Chosen to represent investing in hedge funds with different styles
+* Not necessarily investable
+* Style definitions
+* what style is event driven and distressed securities?
+-->
+
+
+---
+
+## Feasible Space Analysis: Simple Efficient Frontier
+```{r eval=FALSE, tidy=FALSE}
+# define base portfolio
+portf.base <- portfolio.spec(colnames(R))
+portf.base <- add.constraint(portf.base, type="weight_sum",
+                             min_sum=0.99, max_sum=1.01)
+portf.base <- add.constraint(portf.base, type="box", min=0, max=1)
+ef <- create.EfficientFrontier(R, portfolio=portf.base, 
+                               type="mean-StdDev", n.portfolios=100)
+chart.EfficientFrontier(ef, match.col="StdDev", pch=18, col="lightblue")
+```
+
+<!--
+define "base portfolio
+the only thing I will be changing is constraints so define all the objectives
+set multiplier of 0 so the values are calculated, but no optimization is done
+
+-->
+
+---
+
+## Feasible Space Analysis: Simple Efficient Frontier
 
 ![](figures/basic_mv_ef.png)
 
@@ -476,14 +519,34 @@ Simulated data
 show the efficient frontier
 
 we can see what the hull looks like, but what does the entire space of feasible
-portfolios look like
+portfolios look like?
 
-full investment and long onlg
+full investment and long only constraints
 -->
 
 ---
 
-## Entire Feasible Space with Relaxed Constraints
+## Feasible Space Analysis: Entire Feasible Space
+```{r eval=FALSE, tidy=FALSE}
+p <- portfolio.spec(colnames(R))
+p <- add.constraint(p, type="weight_sum", min_sum=0.99, max_sum=1.01)
+p <- add.constraint(p, type="box", min=0, max=1)
+p <- add.objective(p, type="return", name="mean", multiplier=0)
+p <- add.objective(p, type="risk", name="StdDev", multiplier=0)
+rp <- random_portfolios(p, permutations=5000, rp_method='sample')
+opt <- optimize.portfolio(R, p, optimize_method="random", rp=rp, trace=TRUE)
+xt <- extractStats(opt)
+```
+
+<!--
+Show code to use random portfolios to see the entire feasible space
+setup an optimization, run the optimization, then use the output from 
+extractStats to get weights and objectives for every random portfolio
+-->
+
+---
+
+## Feasible Space Analysis: Relaxed Constraints
 ![](figures/p1_ef.png)
 
 
@@ -493,7 +556,7 @@ feasible space with weights sum to 1 and long only constraints
 
 ---
 
-## Feasible Space with Box Constraints
+## Feasible Space Analysis: Box Constraints
 
 ![](figures/p2_ef.png)
 
@@ -505,7 +568,7 @@ feasible space with box constraints
 
 ---
 
-## Feasible Space with Long Only and Group Constraints
+## Feasible Space Analysis: Long Only and Group Constraints
 
 ![](figures/p3_ef.png)
 
@@ -518,7 +581,7 @@ feasible space with long only and group constraints
 
 ---
 
-## Feasible Space with Long Only and Position Limit Constraints
+## Feasible Space Analysis: Long Only and Position Limit Constraints
 
 ![](figures/p4_ef.png)
 
@@ -531,7 +594,7 @@ feasible space with long only and position limit constraints
 
 ---
 
-## Feasible Space with Shorting Allowed and Leverage Constraints
+## Feasible Space Analysis: Shorting Allowed and Leverage Constraints
 
 ![](figures/p5_ef.png)
 
