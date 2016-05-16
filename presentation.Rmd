@@ -1,5 +1,5 @@
 ---
-title       : Feasible Space Analysis & Heirerarchical Optimization with PortfolioAnalytics
+title       : Feasible Space Analysis & Hierarchical Optimization with PortfolioAnalytics
 subtitle    : R/Finance 2016
 author      : Ross Bennett
 date        : May 20, 2016
@@ -626,7 +626,7 @@ Consider an equity long short portfolio
 
 ---
 
-## Heirarchical Optimization: Data
+## Hierarchical Optimization: Data
 ```{r eval=FALSE}
 TODO
 ```
@@ -638,7 +638,7 @@ TODO
 
 ---
 
-## Heirarchical Optimization: Naive Portfolio
+## Hierarchical Optimization: Naive Portfolio
 ```{r eval=FALSE, tidy=FALSE}
 portf.naive <- portfolio.spec(colnames(R))
 portf.naive <- add.constraint(portf.naive, type="weight_sum",
@@ -656,7 +656,7 @@ portf.naive <- add.objective(portf.naive, type="risk_budget",
 
 ---
 
-## Heirarchical Optimization: Naive Portfolio Optimization
+## Hierarchical Optimization: Naive Portfolio Optimization
 ```{r eval=FALSE, tidy=FALSE}
 rp.naive <- random_portfolios(portf.naive, permutations=1000, rp_method='sample')
 opt.naive <- optimize.portfolio.rebalancing(R, portf.naive,
@@ -677,7 +677,7 @@ TODO: add chart
 
 ---
 
-## Heirarchical Optimization: Define Long and Short Portfolio
+## Hierarchical Optimization: Define Long and Short Portfolio
 
 TODO: diagram of portfolio specification
 
@@ -687,7 +687,7 @@ draw out what the portfolio specification looks like
 
 ---
 
-## Heirarchical Optimization: Define Long and Short Portfolio
+## Hierarchical Optimization: Define Long and Short Portfolio
 
 ```{r eval=FALSE, tidy=FALSE}
 # long portfolio
@@ -714,7 +714,7 @@ p.short <- add.objective(p.short, type="risk_budget",
 
 ---
 
-## Heirarchical Optimization: Specify Portfolio Heirerarchy
+## Hierarchical Optimization: Specify Portfolio Heirerarchy
 
 ```{r eval=FALSE, tidy=FALSE}
 TODO
@@ -726,7 +726,7 @@ grab code from pa_opt_views.R
 
 ---
 
-## Heirarchical Optimization: Long and Short Portfolio Results
+## Hierarchical Optimization: Long and Short Portfolio Results
 
 ```{r eval=FALSE, tidy=FALSE}
 TODO
@@ -738,7 +738,7 @@ grab code from pa_opt_views.R
 
 ---
 
-## Heirarchical Optimization: Long/Short Portfolio with View
+## Hierarchical Optimization: Long/Short Portfolio with View
 
 * Define an indicator for overall market direction
   * 12 period exponentially weighted moving average on monthly closing prices of SPY
@@ -756,7 +756,7 @@ grab code from pa_opt_views.R
 
 ---
 
-## Heirarchical Optimization: Long/Short Portfolio with View Specification
+## Hierarchical Optimization: Long/Short Portfolio with View Specification
 ```{r eval=FALSE, tidy=FALSE}
 p.short.1 <- portfolio.spec(assets=colnames(R))
 p.short.1 <- add.constraint(p.short.1, type="weight_sum",
@@ -781,7 +781,7 @@ regime.port <- regime.portfolios(regime, combine.portfolios(list(p.short.1, p.sh
 
 ---
 
-## Heirarchical Optimization: Long/Short Portfolio with View Optimization
+## Hierarchical Optimization: Long/Short Portfolio with View Optimization
 ```{r eval=FALSE, tidy=FALSE}
 TODO
 ```
@@ -792,7 +792,7 @@ use code from pa_opt_views.R
 
 ---
 
-## Heirarchical Optimization: Long/Short Portfolio with View Summary
+## Hierarchical Optimization: Long/Short Portfolio with View Summary
 
 TODO: summarize results
 
