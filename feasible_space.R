@@ -99,6 +99,8 @@ points(x=p2.sd, y=p2.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+legend("topleft", legend = c("Portfolio 1", "Portfolio 2"), bty="n",
+       pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
 
 ##### Example 3: Full Investment, Long Only and Group Constraints #####
@@ -106,9 +108,9 @@ p3 <- portf.base
 p3 <- add.constraint(p3, type="weight_sum",
                      min_sum=0.99, max_sum=1.01)
 p3 <- add.constraint(p3, type="box", min=0, max=1)
-p3 <- add.constraint(p3, type="group", groups=list(1:4, 5:8),
-                        group_min=c(0.1, 0.15), group_max=c(0.65, 0.55),
-                        group_labels=c("GroupA", "GroupB"))
+p3 <- add.constraint(p3, type="group", groups=list(c(2, 4, 8), c(1, 5, 7), c(3, 6)),
+                        group_min=c(0.1, 0.25, 0.1), group_max=c(0.65, 0.45, 0.55),
+                        group_labels=c("RV", "Dir", "Other"))
 
 # generate random portfolios for the baseline portfolio
 rp3 <- random_portfolios(p3, permutations=5000, rp_method='sample')
@@ -129,6 +131,8 @@ points(x=p3.sd, y=p3.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+legend("topleft", legend = c("Portfolio 1", "Portfolio 3"), bty="n",
+       pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
 
 ##### Example 4: Full Investment, Long Only Box and Position Limit Constraints #####
@@ -157,6 +161,8 @@ points(x=p4.sd, y=p4.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+legend("topleft", legend = c("Portfolio 1", "Portfolio 4"), bty="n",
+       pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
 
 ##### Example 5: Full Investment, Allow Shorts with Box and Leverage Constraints #####
@@ -185,9 +191,12 @@ points(x=p5.sd, y=p5.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+legend("topleft", legend = c("Portfolio 1", "Portfolio 5"), bty="n",
+       pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
 
-##
+##### Out of Sample #####
+# TODO if I have time
 
 ##### scratch #####
 # plot the feasible space of the baseline portfolio
