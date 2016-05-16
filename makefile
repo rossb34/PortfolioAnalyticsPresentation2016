@@ -29,18 +29,6 @@ slides.pdf: $(RFILES) $(OUT_FILES) presentation.md
 presentation.md: presentation.Rmd
 	Rscript -e "library(knitr); knit('presentation.Rmd')"
 
-# Data analysis script
-data_analysis.Rout: data_analysis.R
-	R CMD BATCH --vanilla data_analysis.R
-
-# Optimization analysis script to analyze results of optimization
-optimization_analysis.Rout: optimization_analysis.R optimize.R
-	R CMD BATCH --vanilla optimization_analysis.R
-
-# Run optimizations
-optimize.Rout: optimize.R
-	R CMD BATCH --vanilla optimize.R
-
 # Data prep
 data_prep.Rout: data_prep.R
 	R CMD BATCH --vanilla data_prep.R
@@ -49,21 +37,15 @@ data_prep.Rout: data_prep.R
 feasible_space.Rout: feasible_space.R
 	R CMD BATCH --vanilla feasible_space.R
 
-lwShrink.Rout: R/lwShrink.R
-	R CMD BATCH --vanilla R/lwShrink.R
-
-charting.Rout: R/charting.R
-	R CMD BATCH --vanilla R/charting.R
-
+# random portfolios example
 rp_example.Rout: rp_example.R
 	R CMD BATCH --vanilla rp_example.R
 
 # Use Rscript to run the necessary R files as an alternative to R CMD BATCH
 runR:
 	Rscript data_prep.R
-	Rscript data_analysis.R
-	Rscript optimize.R
-	Rscript optimization_analysis.R
+	Rscript feasible_space.R
+	Rscript pa_opt_views.R
 
 clean:
 	rm -f *.Rout
