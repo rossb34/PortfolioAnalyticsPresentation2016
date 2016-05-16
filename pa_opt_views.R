@@ -9,7 +9,7 @@ library(iterators)
 
 # sector returns
 R <- R.sector
-
+mkt.sym <- "SPY"
 # trend indicator
 trend.ind <- na.omit(cbind(Ad(md[[mkt.sym]]), TTR::EMA(Ad(md[[mkt.sym]]), n = 12)))
 regime <- ifelse(trend.ind$SPY.Adjusted > trend.ind$EMA, 1, 2)
@@ -48,8 +48,8 @@ portf.naive <- add.constraint(portf.naive, type = "leverage_exposure", leverage=
 portf.naive <- add.objective(portf.naive, type="risk", name="StdDev")
 portf.naive <- add.objective(portf.naive, type="risk_budget",
                              name="StdDev", max_prisk=0.50)
-rp.naive <- random_portfolios(portf.naive, permutations=1000, rp_method='sample')
 
+rp.naive <- random_portfolios(portf.naive, permutations=1000, rp_method='sample')
 opt.naive <- optimize.portfolio.rebalancing(R, portf.naive,
                                             optimize_method="random",
                                             rebalance_on="quarters",
@@ -105,7 +105,7 @@ p <- add.constraint(p, type="weight_sum",
                     min_sum=0.99, max_sum=1.01)
 p <- add.constraint(p, type="box", min=0.1, max=1)
 p <- add.objective(p, type="return", name="mean")
-p <- add.objective(p, type="risk", name="ES", arguments=list(p=0.9))
+p <- add.objective(p, type="risk", name="StdDev")
 rp <- random_portfolios(p, permutations=1000, rp_method='sample')
 
 opt.ls <- optimize.portfolio.rebalancing(z.ls, p,

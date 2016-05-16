@@ -609,20 +609,196 @@ feasible space with long only and position limit constraints
 
 ## Heierarchical Optimization Example
 
-TODO
+Consider an equity long short portfolio
+
+* We first consider a 'naive' model and specify the portfolio and constraints
+
+* Extend the model and separate the portfolio into a long portfolio and a short portfolio
+
+* Further extend the model and use a framework that allows one to express a view and reduce allocation/exposure to the short portfolio
 
 
 <!--
-feasible space with out of sample
+* focus is on using PortfolioAnalytics to solve the problem, not on the actual
+  specification of the portfolio
+* assume variable leverage and cost of capital is negligeble
 -->
 
 ---
 
 ## Heirarchical Optimization: Data
 ```{r eval=FALSE}
-
+TODO
 ```
 
+<!--
+* Data of the Select Sector SPDR ETFs
+* Monthly returns from 1999-01-05 to 2015-05-22 using the adjusted close prices
+-->
+
+---
+
+## Heirarchical Optimization: Naive Portfolio
+```{r eval=FALSE, tidy=FALSE}
+portf.naive <- portfolio.spec(colnames(R))
+portf.naive <- add.constraint(portf.naive, type="weight_sum",
+                              min_sum=-0.25, max_sum=0.25)
+portf.naive <- add.constraint(portf.naive, type="box", min=-0.5, max=0.5)
+portf.naive <- add.constraint(portf.naive, type = "leverage_exposure", leverage=2)
+portf.naive <- add.objective(portf.naive, type="risk", name="StdDev")
+portf.naive <- add.objective(portf.naive, type="risk_budget",
+                             name="StdDev", max_prisk=0.50)
+```
+
+<!--
+* explain constraints and objectives
+-->
+
+---
+
+## Heirarchical Optimization: Naive Portfolio Optimization
+```{r eval=FALSE, tidy=FALSE}
+rp.naive <- random_portfolios(portf.naive, permutations=1000, rp_method='sample')
+opt.naive <- optimize.portfolio.rebalancing(R, portf.naive,
+                                            optimize_method="random",
+                                            rebalance_on="quarters",
+                                            training_period=36,
+                                            rp=rp.naive, trace=TRUE)
+# compute arithmetic portfolio returns because of negative weights
+ret.naive <- Return.portfolio(R, extractWeights(opt.naive), geometric = FALSE)
+colnames(ret.naive) <- "naive.ls"
+charts.PerformanceSummary(cbind(ret.naive, R.mkt))
+table.AnnualizedReturns(cbind(ret.naive, R.mkt))
+```
+
+<!--
+TODO: add chart
+-->
+
+---
+
+## Heirarchical Optimization: Define Long and Short Portfolio
+
+TODO: diagram of portfolio specification
+
+<!--
+draw out what the portfolio specification looks like
+-->
+
+---
+
+## Heirarchical Optimization: Define Long and Short Portfolio
+
+```{r eval=FALSE, tidy=FALSE}
+# long portfolio
+p.long <- portfolio.spec(assets=colnames(R))
+p.long <- add.constraint(p.long, type="weight_sum",
+                         min_sum=0.99, max_sum=1.01)
+p.long <- add.constraint(p.long, type="box", min=0, max=0.85)
+p.long <- add.objective(p.long, type="risk", name="StdDev")
+p.long <- add.objective(p.long, type="risk_budget",
+                        name="StdDev", max_prisk=0.50)
+# short portfolio
+p.short <- portfolio.spec(assets=colnames(R))
+p.short <- add.constraint(p.short, type="weight_sum",
+                          min_sum=-1.01, max_sum=-0.99)
+p.short <- add.constraint(p.short, type="box", min=-0.85, max=0)
+p.short <- add.objective(p.short, type="risk", name="StdDev")
+p.short <- add.objective(p.short, type="risk_budget",
+                         name="StdDev", max_prisk=0.50)
+```
+
+<!--
+
+-->
+
+---
+
+## Heirarchical Optimization: Specify Portfolio Heirerarchy
+
+```{r eval=FALSE, tidy=FALSE}
+TODO
+```
+
+<!--
+grab code from pa_opt_views.R
+-->
+
+---
+
+## Heirarchical Optimization: Long and Short Portfolio Results
+
+```{r eval=FALSE, tidy=FALSE}
+TODO
+```
+
+<!--
+grab code from pa_opt_views.R
+-->
+
+---
+
+## Heirarchical Optimization: Long/Short Portfolio with View
+
+* Define an indicator for overall market direction
+  * 12 period exponentially weighted moving average on monthly closing prices of SPY
+* Use the trend indicator for a simple regime model
+  * Regime 1: Price >  EMA (Uptrend)
+  * Regime 2: Price <= EMA (Downtrend)
+* Define the portfolio optimization problem such that we reduce exposure to the short portfolio when in regime 1
+
+<!--
+* same setup as before but now we are using the regime switching framework to
+  express a view on the direction of the market
+* 12M EMA on SPY
+* Only reducing exposure because we want to protect against
+-->
+
+---
+
+## Heirarchical Optimization: Long/Short Portfolio with View Specification
+```{r eval=FALSE, tidy=FALSE}
+p.short.1 <- portfolio.spec(assets=colnames(R))
+p.short.1 <- add.constraint(p.short.1, type="weight_sum",
+                            min_sum=-0.26, max_sum=-0.24)
+p.short.1 <- add.constraint(p.short.1, type="box", min=-0.25, max=0)
+p.short.1 <- add.objective(p.short.1, type="risk", name="StdDev")
+p.short.1 <- add.objective(p.short.1, type="risk_budget",
+                           name="StdDev", max_prisk=0.50)
+
+# the short portfolio for regime 2 is the same as the short portfolio we
+# defined earlier
+p.short.2 <- p.short
+# define the portfolios for the regime model
+# regime 1: Price > EMA  ==> p.short.1
+# regime 2: Price <= EMA ==> p.short.2
+regime.port <- regime.portfolios(regime, combine.portfolios(list(p.short.1, p.short.2)))
+```
+
+<!--
+
+-->
+
+---
+
+## Heirarchical Optimization: Long/Short Portfolio with View Optimization
+```{r eval=FALSE, tidy=FALSE}
+TODO
+```
+
+<!--
+use code from pa_opt_views.R
+-->
+
+---
+
+## Heirarchical Optimization: Long/Short Portfolio with View Summary
+
+TODO: summarize results
+
+<!--
+use code from pa_opt_views.R
+-->
 
 ---
 
