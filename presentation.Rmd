@@ -841,7 +841,7 @@ I hope they learned something and are motivated to use PortfolioAnalytics
 
 * [PortfolioAnalytics on CRAN](http://cran.at.r-project.org/web/packages/PortfolioAnalytics/index.html)
 
-* [PortfolioAnalytics on R-Forge](https://r-forge.r-project.org/projects/returnanalytics/)
+* [PortfolioAnalytics on GitHub](https://github.com/braverock/PortfolioAnalytics)
 
 Source code for the slides
 
