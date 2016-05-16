@@ -15,7 +15,7 @@ source("data_prep.R")
 # in sample
 R <- edhec["/2014",1:8]
 # out of sample
-R.os <- edhec["/2015",1:8]
+R.os <- edhec["2015/",1:8]
 #R <- edhec
 my_colors <- c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c")
 
@@ -229,8 +229,15 @@ dev.off()
 ##### Out of Sample #####
 # TODO if I have time
 
+# compute feasible space out of sample
+fs.out <- function(R, rp){
+  # compute mean and standard deviation of out of sample returns
+  rp.mean <- apply(rp, 1, function(x) mean(R %*% x))
+  rp.StdDev <- apply(rp, 1, function(x) StdDev(R, weights=x))
+  list(mean=rp.mean, sd=rp.StdDev)
+}
 
-
+# os1 <- fs.out(R.os, rp1)
 
 ##### scratch #####
 # plot the feasible space of the baseline portfolio
