@@ -627,13 +627,14 @@ Consider an equity long short portfolio
 ---
 
 ## Hierarchical Optimization: Data
-```{r eval=FALSE}
-TODO
-```
+
+Consider an allocation to equity sectors using 9 sector ETFs
+
+![](figures/sector_etf.png)
 
 <!--
 * Data of the Select Sector SPDR ETFs
-* Monthly returns from 1999-01-05 to 2015-05-22 using the adjusted close prices
+* Monthly returns from February 1999 to May 2016 calculated using the adjusted close prices downloaded from Yahoo Finance
 -->
 
 ---
@@ -642,7 +643,7 @@ TODO
 ```{r eval=FALSE, tidy=FALSE}
 portf.naive <- portfolio.spec(colnames(R))
 portf.naive <- add.constraint(portf.naive, type="weight_sum",
-                              min_sum=-0.25, max_sum=0.25)
+                              min_sum=-0.05, max_sum=0.05)
 portf.naive <- add.constraint(portf.naive, type="box", min=-0.5, max=0.5)
 portf.naive <- add.constraint(portf.naive, type = "leverage_exposure", leverage=2)
 portf.naive <- add.objective(portf.naive, type="risk", name="StdDev")
@@ -652,6 +653,8 @@ portf.naive <- add.objective(portf.naive, type="risk_budget",
 
 <!--
 * explain constraints and objectives
+* relax sum of weights constraints for +/- 25% net long/short
+* assuming variable leverage with max 2:1 leverage
 -->
 
 ---
@@ -667,12 +670,21 @@ opt.naive <- optimize.portfolio.rebalancing(R, portf.naive,
 # compute arithmetic portfolio returns because of negative weights
 ret.naive <- Return.portfolio(R, extractWeights(opt.naive), geometric = FALSE)
 colnames(ret.naive) <- "naive.ls"
-charts.PerformanceSummary(cbind(ret.naive, R.mkt))
-table.AnnualizedReturns(cbind(ret.naive, R.mkt))
+charts.PerformanceSummary(ret.naive)
 ```
 
 <!--
 TODO: add chart
+-->
+
+---
+
+## Hierarchical Optimization: Naive Portfolio Optimization Results
+
+![](figures/naive_opt.png)
+
+<!--
+
 -->
 
 ---
@@ -692,20 +704,18 @@ draw out what the portfolio specification looks like
 ```{r eval=FALSE, tidy=FALSE}
 # long portfolio
 p.long <- portfolio.spec(assets=colnames(R))
-p.long <- add.constraint(p.long, type="weight_sum",
-                         min_sum=0.99, max_sum=1.01)
+p.long <- add.constraint(p.long, type="weight_sum", min_sum=0.99, max_sum=1.01)
 p.long <- add.constraint(p.long, type="box", min=0, max=0.85)
 p.long <- add.objective(p.long, type="risk", name="StdDev")
-p.long <- add.objective(p.long, type="risk_budget",
-                        name="StdDev", max_prisk=0.50)
+p.long <- add.objective(p.long, type="risk_budget", name="StdDev", max_prisk=0.50)
+rp.long <- random_portfolios(p.long, permutations=1000, rp_method='sample')
 # short portfolio
 p.short <- portfolio.spec(assets=colnames(R))
-p.short <- add.constraint(p.short, type="weight_sum",
-                          min_sum=-1.01, max_sum=-0.99)
+p.short <- add.constraint(p.short, type="weight_sum", min_sum=-1.01, max_sum=-0.99)
 p.short <- add.constraint(p.short, type="box", min=-0.85, max=0)
 p.short <- add.objective(p.short, type="risk", name="StdDev")
-p.short <- add.objective(p.short, type="risk_budget",
-                         name="StdDev", max_prisk=0.50)
+p.short <- add.objective(p.short, type="risk_budget", name="StdDev", max_prisk=0.50)
+rp.short <- random_portfolios(p.short, permutations=1000, rp_method='sample')
 ```
 
 <!--
@@ -717,20 +727,45 @@ p.short <- add.objective(p.short, type="risk_budget",
 ## Hierarchical Optimization: Specify Portfolio Heirerarchy
 
 ```{r eval=FALSE, tidy=FALSE}
-TODO
+# combined portfolio
+p <- portfolio.spec(assets=paste("proxy",1:2, sep="."))
+p <- add.constraint(p, type="weight_sum", min_sum=0.99, max_sum=1.01)
+p <- add.constraint(p, type="box", min=0.1, max=1)
+p <- add.objective(p, type="return", name="mean")
+p <- add.objective(p, type="risk", name="StdDev")
+rp <- random_portfolios(p, permutations=1000, rp_method='sample')
+mult.portf <- mult.portfolio.spec(p)
+mult.portf <- add.sub.portfolio(mult.portf, p.long, rp=rp.long, 
+                                optimize_method="random", rebalance_on="quarters", 
+                                training_period=36)
+mult.portf <- add.sub.portfolio(mult.portf, p.short, rp=rp.short, 
+                                optimize_method="random", rebalance_on="quarters", 
+                                training_period=36)
 ```
 
 <!--
-grab code from pa_opt_views.R
+* focus on the multi-layer specification
 -->
 
 ---
 
-## Hierarchical Optimization: Long and Short Portfolio Results
-
+## Hierarchical Optimization: Long and Short Portfolio Optimization
 ```{r eval=FALSE, tidy=FALSE}
-TODO
+# run the optimization
+opt.m.ls <- optimize.portfolio.rebalancing(R, mult.portf,
+                                           optimize_method = "random",
+                                           trace = TRUE, rp = rp,
+                                           rebalance_on = "quarters",
+                                           training_period = 36)
+r.ls <- Return.portfolio(opt.m.ls$R, extractWeights(opt.m.ls), geometric = FALSE)
+charts.PerformanceSummary(r.ls)
 ```
+
+
+---
+
+## Hierarchical Optimization: Long and Short Portfolio Optimization Results
+![](figures/ls_opt.png)
 
 <!--
 grab code from pa_opt_views.R
@@ -761,17 +796,14 @@ grab code from pa_opt_views.R
 p.short.1 <- portfolio.spec(assets=colnames(R))
 p.short.1 <- add.constraint(p.short.1, type="weight_sum",
                             min_sum=-0.26, max_sum=-0.24)
-p.short.1 <- add.constraint(p.short.1, type="box", min=-0.25, max=0)
-p.short.1 <- add.objective(p.short.1, type="risk", name="StdDev")
+p.short.1 <- add.constraint(portfolio=p.short.1, type="box", min=-0.25, max=0)
+p.short.1 <- add.objective(portfolio=p.short.1, type="risk", name="StdDev")
 p.short.1 <- add.objective(p.short.1, type="risk_budget",
                            name="StdDev", max_prisk=0.50)
-
-# the short portfolio for regime 2 is the same as the short portfolio we
-# defined earlier
 p.short.2 <- p.short
 # define the portfolios for the regime model
-# regime 1: Price > EMA  ==> p.short.1
-# regime 2: Price <= EMA ==> p.short.2
+# regime 1: Price >  EMA
+# regime 2: Price <= EMA
 regime.port <- regime.portfolios(regime, combine.portfolios(list(p.short.1, p.short.2)))
 ```
 
@@ -783,7 +815,21 @@ regime.port <- regime.portfolios(regime, combine.portfolios(list(p.short.1, p.sh
 
 ## Hierarchical Optimization: Long/Short Portfolio with View Optimization
 ```{r eval=FALSE, tidy=FALSE}
-TODO
+p <- portfolio.spec(assets=paste("proxy",1:2, sep="."))
+p <- add.constraint(p, type="weight_sum",min_sum=0.99, max_sum=1.01)
+p <- add.constraint(p, type="box", min=0.1, max=1)
+p <- add.objective(p, type="return", name="mean")
+p <- add.objective(p, type="risk", name="StdDev")
+rp <- random_portfolios(p, permutations=1000, rp_method='sample')
+
+# initialize multi-layer (i.e. hierarchical) portfolio specification
+mult.portf <- mult.portfolio.spec(p)
+mult.portf <- add.sub.portfolio(mult.portf, p.long, rp=rp.long,
+                                optimize_method="random", rebalance_on="quarters",
+                                training_period=36)
+mult.portf <- add.sub.portfolio(mult.portf, regime.port,
+                                search_size = 1000, optimize_method="random", 
+                                rebalance_on="quarters", training_period=36)
 ```
 
 <!--
@@ -792,12 +838,26 @@ use code from pa_opt_views.R
 
 ---
 
-## Hierarchical Optimization: Long/Short Portfolio with View Summary
+## Hierarchical Optimization: Long/Short Portfolio with View Optimization
+```{r eval=FALSE, tidy=FALSE}
+opt.mr.ls <- optimize.portfolio.rebalancing(R, mult.portf,
+                                            optimize_method = "random",
+                                            trace = TRUE, rp = rp,
+                                            rebalance_on = "quarters",
+                                            training_period = 36)
+r.ls.regime <- Return.portfolio(opt.mr.ls$R, extractWeights(opt.mr.ls), geometric = FALSE)
+ret.all <- na.omit(cbind(ret.naive, r.ls, r.ls.regime))
+charts.PerformanceSummary(ret.all)
+```
 
-TODO: summarize results
+
+---
+
+## Hierarchical Optimization: Long/Short Portfolio with View Optimization Results
+![](figures/ls_all_opt.png)
 
 <!--
-use code from pa_opt_views.R
+summarize the models and the results
 -->
 
 ---

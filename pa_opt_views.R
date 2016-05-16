@@ -2,10 +2,16 @@
 # run the data prep script
 source("data_prep.R")
 
+# common resolution for projectors is 1024 × 768
+w.px <- 1024 * 0.8
+h.px <- 768 * 0.6
+
 library(PortfolioAnalytics)
 library(quantmod)
 library(foreach)
 library(iterators)
+require(doParallel, quietly=TRUE)
+registerDoParallel(cores=detectCores()-4)
 
 # sector returns
 R <- R.sector
@@ -42,7 +48,7 @@ colnames(r.ls.rank) <- "ls.ranking"
 # naive portfolio
 portf.naive <- portfolio.spec(colnames(R))
 portf.naive <- add.constraint(portf.naive, type="weight_sum",
-                              min_sum=-0.25, max_sum=0.25)
+                              min_sum=-0.05, max_sum=0.05)
 portf.naive <- add.constraint(portf.naive, type="box", min=-0.5, max=0.5)
 portf.naive <- add.constraint(portf.naive, type = "leverage_exposure", leverage=2)
 portf.naive <- add.objective(portf.naive, type="risk", name="StdDev")
@@ -57,11 +63,23 @@ opt.naive <- optimize.portfolio.rebalancing(R, portf.naive,
                                             rp=rp.naive, trace=TRUE)
 # compute arithmetic portfolio returns because of negative weights
 ret.naive <- Return.portfolio(R, extractWeights(opt.naive), geometric = FALSE)
-colnames(ret.naive) <- "naive.ls"
-charts.PerformanceSummary(cbind(ret.naive, R.mkt))
-table.AnnualizedReturns(cbind(ret.naive, R.mkt))
+colnames(ret.naive) <- "naive.long.short"
+png("figures/naive_opt.png", width = w.px, height = h.px, units = "px")
+charts.PerformanceSummary(ret.naive)
+dev.off()
+# table.AnnualizedReturns(cbind(ret.naive, R.mkt))
 
 ##### Separate Long and Short Portfolios #####
+## long-short in multi layer (i.e. hierarchical) framework
+# combined portfolio
+p <- portfolio.spec(assets=paste("proxy",1:2, sep="."))
+p <- add.constraint(p, type="weight_sum",
+                    min_sum=0.99, max_sum=1.01)
+p <- add.constraint(p, type="box", min=0.1, max=1)
+p <- add.objective(p, type="return", name="mean")
+p <- add.objective(p, type="risk", name="StdDev")
+rp <- random_portfolios(p, permutations=1000, rp_method='sample')
+
 # long portfolio
 p.long <- portfolio.spec(assets=colnames(R))
 p.long <- add.constraint(p.long, type="weight_sum",
@@ -71,13 +89,6 @@ p.long <- add.objective(p.long, type="risk", name="StdDev")
 p.long <- add.objective(p.long, type="risk_budget",
                         name="StdDev", max_prisk=0.50)
 rp.long <- random_portfolios(p.long, permutations=1000, rp_method='sample')
-opt.long <- optimize.portfolio.rebalancing(R, p.long,
-                                           optimize_method = "random",
-                                           trace = TRUE, rp = rp.long,
-                                           rebalance_on = "quarters",
-                                           training_period = 36)
-r.long <- Return.portfolio(R, extractWeights(opt.long), geometric = FALSE)
-colnames(r.long) <- "long"
 
 # short portfolio
 p.short <- portfolio.spec(assets=colnames(R))
@@ -88,40 +99,37 @@ p.short <- add.objective(p.short, type="risk", name="StdDev")
 p.short <- add.objective(p.short, type="risk_budget",
                          name="StdDev", max_prisk=0.50)
 rp.short <- random_portfolios(p.short, permutations=1000, rp_method='sample')
-opt.short <- optimize.portfolio.rebalancing(R, p.short,
-                                            optimize_method = "random",
-                                            trace = TRUE, rp = rp.short,
-                                            rebalance_on = "quarters",
-                                            training_period = 36)
-r.short <- Return.portfolio(R, extractWeights(opt.short), geometric = FALSE)
-colnames(r.short) <- "short"
 
-# returns from the long and short portfolio
-z.ls <- cbind(r.long, r.short)
-
-# combined portfolio
-p <- portfolio.spec(assets=colnames(z.ls))
-p <- add.constraint(p, type="weight_sum",
-                    min_sum=0.99, max_sum=1.01)
-p <- add.constraint(p, type="box", min=0.1, max=1)
-p <- add.objective(p, type="return", name="mean")
-p <- add.objective(p, type="risk", name="StdDev")
-rp <- random_portfolios(p, permutations=1000, rp_method='sample')
-
-opt.ls <- optimize.portfolio.rebalancing(z.ls, p,
-                                         optimize_method = "random",
-                                         trace = TRUE, rp = rp,
-                                         rebalance_on = "quarters",
-                                         training_period = 36)
-r.ls <- Return.portfolio(z.ls, extractWeights(opt.ls), geometric = FALSE)
-colnames(r.ls) <- "ls"
+# initialize the hierarchical portfolio specification
+mult.portf <- mult.portfolio.spec(p)
+# add the long portfolio
+mult.portf <- add.sub.portfolio(mult.portf, p.long, rp=rp.long,
+                                optimize_method="random",
+                                rebalance_on="quarters",
+                                training_period=36)
+# add the short portfolio
+mult.portf <- add.sub.portfolio(mult.portf, p.short, rp=rp.short,
+                                optimize_method="random",
+                                rebalance_on="quarters",
+                                training_period=36)
+# run the optimization
+opt.m.ls <- optimize.portfolio.rebalancing(R, mult.portf,
+                                           optimize_method = "random",
+                                           trace = TRUE, rp = rp,
+                                           rebalance_on = "quarters",
+                                           training_period = 36)
+r.ls <- Return.portfolio(opt.m.ls$R, extractWeights(opt.m.ls), geometric = FALSE)
+colnames(r.ls) <- "long.short"
+png("figures/ls_opt.png", width = w.px, height = h.px, units = "px")
+charts.PerformanceSummary(r.ls)
+dev.off()
 
 ##### Separate Long and Short with Trend Indicator and Regime Portfolios #####
 # short portfolio with trend indicator and regime model
 
 # use the regime switching model for the short portfolio
 # we use the SPY 12 period EMA as an indicator
-# regime 1: Price > EMA
+# regime 1: Price >  EMA
 # regime 2: Price <= EMA
 
 # the short portfolio should reduce exposure when in regime 1
@@ -145,56 +153,41 @@ p.short.2 <- p.short
 # regime 2: Price <= EMA
 regime.port <- regime.portfolios(regime,
                                  combine.portfolios(list(p.short.1, p.short.2)))
-# run the optimization for the regime model
-opt.short.regime <- optimize.portfolio.rebalancing(R, regime.port,
-                                                   optimize_method="random",
-                                                   rebalance_on="quarters",
-                                                   training_period=36,
-                                                   search_size=1000,
-                                                   trace=TRUE)
-r.short.regime <- Return.portfolio(R, extractWeights(opt.short.regime), geometric = FALSE)
-colnames(r.short.regime) <- "short.regime"
 
-# returns from the long and short portfolio
-z.ls.regime <- cbind(r.long, r.short.regime)
-
-# combined portfolio
-p <- portfolio.spec(assets=colnames(z.ls.regime))
+## regime in the multi-layer (i.e. hierarchy) framework
+p <- portfolio.spec(assets=paste("proxy",1:2, sep="."))
 p <- add.constraint(p, type="weight_sum",
                     min_sum=0.99, max_sum=1.01)
 p <- add.constraint(p, type="box", min=0.1, max=1)
 p <- add.objective(p, type="return", name="mean")
-p <- add.objective(p, type="risk", name="ES", arguments=list(p=0.9))
+p <- add.objective(p, type="risk", name="StdDev")
 rp <- random_portfolios(p, permutations=1000, rp_method='sample')
 
-opt.ls.regime <- optimize.portfolio.rebalancing(z.ls.regime, p,
-                                                optimize_method = "random",
-                                                trace = TRUE, rp = rp,
-                                                rebalance_on = "quarters",
-                                                training_period = 36)
-r.ls.regime <- Return.portfolio(z.ls.regime, extractWeights(opt.ls.regime), geometric = FALSE)
-colnames(r.ls.regime) <- "ls.regime"
+# initialize multi-layer (i.e. hierarchical) portfolio specification
+mult.portf <- mult.portfolio.spec(p)
+# add the long portfolio
+mult.portf <- add.sub.portfolio(mult.portf, p.long, rp=rp.long,
+                                optimize_method="random",
+                                rebalance_on="quarters",
+                                training_period=36)
+# add the short portfolio
+mult.portf <- add.sub.portfolio(mult.portf, regime.port,
+                                search_size = 1000,
+                                optimize_method="random",
+                                rebalance_on="quarters",
+                                training_period=36)
+opt.mr.ls <- optimize.portfolio.rebalancing(R, mult.portf,
+                                            optimize_method = "random",
+                                            trace = TRUE, rp = rp,
+                                            rebalance_on = "quarters",
+                                            training_period = 36)
+r.ls.regime <- Return.portfolio(opt.mr.ls$R, extractWeights(opt.mr.ls), geometric = FALSE)
+colnames(r.ls.regime) <- "long.short.regime"
 
-ret.all <- cbind(r.ls, r.ls.regime)
+ret.all <- na.omit(cbind(ret.naive, r.ls, r.ls.regime))
+png("figures/ls_all_opt.png", width = w.px, height = h.px, units = "px")
 charts.PerformanceSummary(ret.all)
-table.AnnualizedReturns(ret.all)
-
-
-
-z <- cbind(r.ls, r.ls.regime, r.ls.rank)
-charts.PerformanceSummary(z)
-table.AnnualizedReturns(z)
-
-
-
-
-
-
-
-
-
-
-
+dev.off()
 
 
 ##### scratch #####
@@ -242,5 +235,74 @@ table.AnnualizedReturns(z)
 #                                              rebalance_on="quarters",
 #                                              training_period=36,
 #                                              rp=rp.top, trace=TRUE)
-
-
+##### Long and Short Portfolio #####
+# # long portfolio
+# p.long <- portfolio.spec(assets=colnames(R))
+# p.long <- add.constraint(p.long, type="weight_sum",
+#                          min_sum=0.99, max_sum=1.01)
+# p.long <- add.constraint(p.long, type="box", min=0, max=0.85)
+# p.long <- add.objective(p.long, type="risk", name="StdDev")
+# p.long <- add.objective(p.long, type="risk_budget",
+#                         name="StdDev", max_prisk=0.50)
+# rp.long <- random_portfolios(p.long, permutations=1000, rp_method='sample')
+# opt.long <- optimize.portfolio.rebalancing(R, p.long,
+#                                            optimize_method = "random",
+#                                            trace = TRUE, rp = rp.long,
+#                                            rebalance_on = "quarters",
+#                                            training_period = 36)
+# r.long <- Return.portfolio(R, extractWeights(opt.long), geometric = FALSE)
+# colnames(r.long) <- "long"
+# 
+# # short portfolio
+# p.short <- portfolio.spec(assets=colnames(R))
+# p.short <- add.constraint(p.short, type="weight_sum",
+#                           min_sum=-1.01, max_sum=-0.99)
+# p.short <- add.constraint(p.short, type="box", min=-0.85, max=0)
+# p.short <- add.objective(p.short, type="risk", name="StdDev")
+# p.short <- add.objective(p.short, type="risk_budget",
+#                          name="StdDev", max_prisk=0.50)
+# rp.short <- random_portfolios(p.short, permutations=1000, rp_method='sample')
+# opt.short <- optimize.portfolio.rebalancing(R, p.short,
+#                                             optimize_method = "random",
+#                                             trace = TRUE, rp = rp.short,
+#                                             rebalance_on = "quarters",
+#                                             training_period = 36)
+# r.short <- Return.portfolio(R, extractWeights(opt.short), geometric = FALSE)
+# colnames(r.short) <- "short"
+# 
+# # returns from the long and short portfolio
+# z.ls <- cbind(r.long, r.short)
+# 
+# # combined portfolio
+# p <- portfolio.spec(assets=colnames(z.ls))
+# p <- add.constraint(p, type="weight_sum",
+#                     min_sum=0.99, max_sum=1.01)
+# p <- add.constraint(p, type="box", min=0.1, max=1)
+# p <- add.objective(p, type="return", name="mean")
+# p <- add.objective(p, type="risk", name="StdDev")
+# rp <- random_portfolios(p, permutations=1000, rp_method='sample')
+# 
+# opt.ls <- optimize.portfolio.rebalancing(z.ls, p,
+#                                          optimize_method = "random",
+#                                          trace = TRUE, rp = rp,
+#                                          rebalance_on = "quarters",
+#                                          training_period = 36)
+# r.ls <- Return.portfolio(z.ls, extractWeights(opt.ls), geometric = TRUE)
+# colnames(r.ls) <- "ls"
+# charts.PerformanceSummary(cbind(ret.naive, r.ls))
+# 
+# ##
+# run the optimization for the regime model
+# opt.short.regime <- optimize.portfolio.rebalancing(R, regime.port,
+#                                                    optimize_method="random",
+#                                                    rebalance_on="quarters",
+#                                                    training_period=36,
+#                                                    search_size=1000,
+#                                                    trace=TRUE)
+# r.short.regime <- Return.portfolio(R, extractWeights(opt.short.regime), geometric = FALSE)
+# colnames(r.short.regime) <- "short.regime"
+# 
+# r.long <- opt.m.ls$R[,1]
+# 
+# # returns from the long and short portfolio
+# z.ls.regime <- cbind(r.long, r.short.regime)

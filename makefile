@@ -4,7 +4,7 @@
 # List the R files used
 # RFILES := data_prep.R data_analysis.R optimize.R optimization_analysis.R
 
-RFILES := data_prep.R rp_example.R feasible_space.R
+RFILES := data_prep.R data_analysis.R rp_example.R feasible_space.R pa_opt_views.R
 
 # Rout indicator files to show R file has run
 # R CMD BATCH will generate .Rout files after running
@@ -33,9 +33,17 @@ presentation.md: presentation.Rmd
 data_prep.Rout: data_prep.R
 	R CMD BATCH --vanilla data_prep.R
 
+# Data prep
+data_analysis.Rout: data_analysis.R
+	R CMD BATCH --vanilla data_analysis.R
+
 # Feasible space analysis
 feasible_space.Rout: feasible_space.R
 	R CMD BATCH --vanilla feasible_space.R
+
+# hierarchical optimization
+pa_opt_views.Rout: pa_opt_views.R
+	R CMD BATCH --vanilla pa_opt_views.R
 
 # random portfolios example
 rp_example.Rout: rp_example.R
@@ -44,6 +52,7 @@ rp_example.Rout: rp_example.R
 # Use Rscript to run the necessary R files as an alternative to R CMD BATCH
 runR:
 	Rscript data_prep.R
+	Rscript data_analysis.R
 	Rscript feasible_space.R
 	Rscript pa_opt_views.R
 
