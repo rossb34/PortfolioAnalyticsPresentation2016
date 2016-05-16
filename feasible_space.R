@@ -4,6 +4,12 @@ library(PortfolioAnalytics)
 w <- 1024 * 0.8
 h <- 768 * 0.6
 
+# really simple helper function to find the max sharpe ratio portfolio
+# given the output from extract stats
+find.max.sr <- function(x){
+  x[which.max(x[,"mean"] / x[,"StdDev"]),]
+}
+
 source("data_prep.R")
 
 # in sample
@@ -61,6 +67,7 @@ xt1 <- extractStats(opt1)
 p1.mean <- xt1[,"mean"]
 p1.sd <- xt1[,"StdDev"]
 p1.es <- xt1[,"ES"]
+opt.xt1 <- find.max.sr(xt1)
 
 png("figures/p1_ef.png", width = w, height = h, units = "px")
 # plot the feasible space
@@ -72,6 +79,10 @@ points(x=p1.sd, y=p1.mean, col=my_colors[2], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+# max sharpe ratio portfolio
+points(x=opt.xt1["StdDev"], y=opt.xt1["mean"], col="orange", pch=19)
+text(x=opt.xt1["StdDev"], y=opt.xt1["mean"], pos=2, cex=0.8,
+     labels=paste("Max SR =",round(opt.xt1["mean"]/opt.xt1["StdDev"],4)), col="black")
 dev.off()
 
 ##### Example 2: Full Investment, Long Only Box Constraints #####
@@ -88,6 +99,7 @@ xt2 <- extractStats(opt2)
 p2.mean <- xt2[,"mean"]
 p2.sd <- xt2[,"StdDev"]
 p2.es <- xt2[,"ES"]
+opt.xt2 <- find.max.sr(xt2)
 
 png("figures/p2_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
@@ -99,6 +111,10 @@ points(x=p2.sd, y=p2.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+# max sharpe ratio portfolio
+points(x=opt.xt2["StdDev"], y=opt.xt2["mean"], col="orange", pch=19)
+text(x=opt.xt2["StdDev"], y=opt.xt2["mean"], pos=2, cex=0.8,
+     labels=paste("Max SR =",round(opt.xt2["mean"]/opt.xt2["StdDev"],4)), col="black")
 legend("topleft", legend = c("Portfolio 1", "Portfolio 2"), bty="n",
        pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
@@ -120,6 +136,7 @@ xt3 <- extractStats(opt3)
 p3.mean <- xt3[,"mean"]
 p3.sd <- xt3[,"StdDev"]
 p3.es <- xt3[,"ES"]
+opt.xt3 <- find.max.sr(xt3)
 
 png("figures/p3_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
@@ -131,6 +148,10 @@ points(x=p3.sd, y=p3.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+# max sharpe ratio portfolio
+points(x=opt.xt3["StdDev"], y=opt.xt3["mean"], col="orange", pch=19)
+text(x=opt.xt3["StdDev"], y=opt.xt3["mean"], pos=2, cex=0.8,
+     labels=paste("Max SR =",round(opt.xt3["mean"]/opt.xt3["StdDev"],4)), col="black")
 legend("topleft", legend = c("Portfolio 1", "Portfolio 3"), bty="n",
        pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
@@ -150,6 +171,7 @@ xt4 <- extractStats(opt4)
 p4.mean <- xt4[,"mean"]
 p4.sd <- xt4[,"StdDev"]
 p4.es <- xt4[,"ES"]
+opt.xt4 <- find.max.sr(xt4)
 
 png("figures/p4_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
@@ -161,6 +183,10 @@ points(x=p4.sd, y=p4.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+# max sharpe ratio portfolio
+points(x=opt.xt4["StdDev"], y=opt.xt4["mean"], col="orange", pch=19)
+text(x=opt.xt4["StdDev"], y=opt.xt4["mean"], pos=2, cex=0.8,
+     labels=paste("Max SR =",round(opt.xt4["mean"]/opt.xt4["StdDev"],4)), col="black")
 legend("topleft", legend = c("Portfolio 1", "Portfolio 4"), bty="n",
        pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
@@ -180,6 +206,7 @@ xt5 <- extractStats(opt5)
 p5.mean <- xt5[,"mean"]
 p5.sd <- xt5[,"StdDev"]
 p5.es <- xt5[,"ES"]
+opt.xt5 <- find.max.sr(xt5)
 
 png("figures/p5_ef.png", width = w, height = h, units = "px")
 plot(x=x.assets, y=y.assets, type="n", main="Feasible Space",
@@ -191,12 +218,19 @@ points(x=p5.sd, y=p5.mean, col=my_colors[3], pch=1)
 # assets
 points(x=x.assets, y=y.assets, col="black", pch=19)
 text(x=x.assets, y=y.assets, labels=colnames(R), pos=4, cex=0.8)
+# max sharpe ratio portfolio
+points(x=opt.xt5["StdDev"], y=opt.xt5["mean"], col="orange", pch=19)
+text(x=opt.xt5["StdDev"], y=opt.xt5["mean"], pos=2, cex=0.8,
+     labels=paste("Max SR =",round(opt.xt5["mean"]/opt.xt5["StdDev"],4)), col="black")
 legend("topleft", legend = c("Portfolio 1", "Portfolio 5"), bty="n",
        pch = c(1, 1), col = c(my_colors[2], my_colors[3]))
 dev.off()
 
 ##### Out of Sample #####
 # TODO if I have time
+
+
+
 
 ##### scratch #####
 # plot the feasible space of the baseline portfolio
