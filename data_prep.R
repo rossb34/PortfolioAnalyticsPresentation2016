@@ -13,6 +13,7 @@ colnames(edhec) <- c("CA", "CTAG", "DS", "EM", "EMN", "ED", "FIA", "GM", "LSE", 
 if(file.exists("data/sector.rda")){
   # load the sector etf returns and the market data environment
   load("data/sector.rda")
+  load("data/market.rda")
   load("data/md_env.RData")
 } else {
   md <- new.env()
@@ -38,6 +39,7 @@ if(file.exists("data/sector.rda")){
   R.sector <- ret[,sec.sym]
   R.mkt <- ret[, mkt.sym]
   # save the sector etf returns and the market data environment
-  save(ret, file="data/sector.rda")
+  save(R.sector, file="data/sector.rda")
+  save(R.mkt, file="data/market.rda")
   save(md, file="data/md_env.RData")
 }

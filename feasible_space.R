@@ -2,7 +2,7 @@ library(PortfolioAnalytics)
 
 # common resolution for projectors is 1024 × 768
 w <- 1024 * 0.8
-h <- 768 * 0.8
+h <- 768 * 0.6
 
 source("data_prep.R")
 
