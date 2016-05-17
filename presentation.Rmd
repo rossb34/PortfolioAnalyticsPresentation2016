@@ -37,7 +37,7 @@ require(methods)
 
 In general, MPT states that an investor's objective is to maximize portfolio expected return for a given amount of risk.
 
-General Objectives
+Common Objectives
 
 * Maximize a measure of gain per unit measure of risk
 * Minimize a measure of risk
@@ -62,7 +62,7 @@ Several approaches follow the Markowitz approach using mean return as a measure 
     * Equal Component Contribution to Risk (i.e. Risk Parity)
     * Limits on Component Contribution
 * Maximize a Utility Function
-    * Quadratic, CRRA, etc.
+    * Quadratic, Constant Relative Risk Aversion (CRRA), etc.
 
 <!--
 * Expand on pros/cons of closed-form solvers vs. global solvers and what objectives can be solved.
@@ -75,13 +75,14 @@ Several approaches follow the Markowitz approach using mean return as a measure 
 ## PortfolioAnalytics Overview
 PortfolioAnalytics is an R package designed to provide numerical solutions and visualizations for portfolio optimization problems with complex constraints and objectives.
 
-* Support for multiple constraint and objective types
-* Modular constraints and objectives
-* An objective function can be any valid R function
-* Support for user defined moment functions
-* Visualizations
-* Solver agnostic
-* Support for parallel computing
+Supports:
+* multiple constraint and objective types
+* modular constraints and objectives
+* an objective function can be any valid R function
+* user defined moment functions (e.g. covariance matrix, return projections)
+* visualizations
+* solver agnostic
+* parallel computing
 
 <!---
 The key points to make here are:
@@ -94,11 +95,6 @@ The key points to make here are:
 * Visualization helps to build intuition about the problem and understand the feasible space of portfolios
 * Periodic rebalancing and analyzing out of sample performance will help refine objectives and constraints
 * Framework for evaluating portfolios with different sets of objectives and portfolios through time
--->
-
----
-
-## New in PortfolioAnalytics
 
 * Pushed to CRAN
 * Regime Switching Framework
@@ -108,7 +104,6 @@ The key points to make here are:
 * Improved Random Portfolios Algorithm
 * More demos, vignettes, and documentation
 
-<!--
 Highlight a few things about each point
 * Pushed to CRAN
   * 2015-04-19
@@ -407,6 +402,7 @@ Ledoit and Wolf (2003):
 * Shrinkage Estimators
 * Factor Model
 * Expressing Views
+* See [Custom Moment and Objective Functions](https://cran.r-project.org/web/packages/PortfolioAnalytics/vignettes/custom_moments_objectives.pdf) vignette
 
 
 <!--
