@@ -28,6 +28,8 @@ require(methods)
     * What PortfolioAnalytics does and the problems it solves
 * Demonstrate PortfolioAnalytics with Examples
     * Brief overview of the examples I will be giving
+    * use random portfolios to explore the feasible space of constrained portfolios
+    * demonstrate framework to solve hierarchical portfolio optimization problem
 -->
 
 ---
@@ -87,7 +89,7 @@ Supports:
 <!---
 The key points to make here are:
 * Flexibility
-    * The multiple types and modularity of constraints and objectives allows us to add, remove, combine, etc. multiple constraint and objective types very easily.
+    * The multiple types and modularity of constraints and objectives allows us to add, remove, and combine multiple constraint and objective types very easily.
     * Define an objective as any valid R function
     * Define a function to compute the moments (sample, robust, shrinkage, factor model, GARCH model, etc.)
     * Estimation error is a significant concern with optimization. Having the ability to test different models with different parameters is critical.
@@ -133,7 +135,7 @@ Highlight a few things about each point
 <!--
 explanation of how the multilayer optimization works
 start with portfolio of subportfolios
-the subportfolios could be countries, sectors, etc.
+the subportfolios could be countries, sectors, strategies, etc.
 optimize subportfolios
 this gives us 'n' synthetic return streams for 'n' sub portfolios
 we then optimize the top level portfolio using the 'n' synthetic return streams
