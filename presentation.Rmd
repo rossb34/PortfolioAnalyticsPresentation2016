@@ -129,7 +129,7 @@ Highlight a few things about each point
 
 ---
 
-## Multilayer Optimization
+## Hierarchical (i.e. Multilayer) Optimization
 ![](mult_portf.png)
 
 <!--
@@ -472,11 +472,12 @@ Here we will analyse the feasible space of allocations to hedge fund strategies
 
 * EDHEC-Risk Alternative Indexes monthly returns from 1/31/1997 to 12/31/2014
 
-Relative Value | Directional | Other
--------------- | ----------- | -----------
-Convertible Arbitrage (CA) | CTA Global (CTAG) | Distressed Securites (DS)
-Equity Market Neutral (EMN) | Emerging Markets (EM) | Event Driven (ED)
-Fixed Income Arbitrage (FIA) | Global Macro (GM) |
+Relative Value | Directional
+-------------- | ----------- 
+Convertible Arbitrage (CA) | CTA Global (CTAG)
+Equity Market Neutral (EMN) | Emerging Markets (EM)
+Fixed Income Arbitrage (FIA) | Global Macro (GM)
+Event Driven (ED) | Distressed Securites (DS)
 
 <!--
 * Chosen to represent investing in hedge funds with different styles
@@ -685,15 +686,6 @@ TODO: add chart
 
 -->
 
----
-
-## Hierarchical Optimization: Define Long and Short Portfolio
-
-TODO: diagram of portfolio specification
-
-<!--
-draw out what the portfolio specification looks like
--->
 
 ---
 
