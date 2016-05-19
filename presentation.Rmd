@@ -918,4 +918,3 @@ and view it here
 * [W.T. Shaw Random Portfolios](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=1856476)
 * [Improved Forecasts of Higher-Order Co-moments and Implications for Portfolio Selection](http://docs.edhec-risk.com/EAID-2008-Doc/documents/Higher_Order_Comoments.pdf)
 * [Higher Order Comoments of Multifactor Models and Asset Allocation](http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2409603)
-* [Shiny App](http://spark.rstudio.com/rossbennett3/PortfolioOptimization/)
