@@ -686,7 +686,6 @@ TODO: add chart
 
 -->
 
-
 ---
 
 ## Hierarchical Optimization: Define Long and Short Portfolio
@@ -792,8 +791,9 @@ p.short.1 <- add.objective(p.short.1, type="risk_budget",
                            name="StdDev", max_prisk=0.50)
 p.short.2 <- p.short
 # define the portfolios for the regime model
-# regime 1: Price >  EMA
-# regime 2: Price <= EMA
+# regime 1: Price >  EMA ; regime 2: Price <= EMA
+trend.ind <- na.omit(cbind(Ad(SPY), TTR::EMA(Ad(SPY), n = 12)))
+regime <- ifelse(trend.ind$SPY.Adjusted > trend.ind$EMA, 1, 2)
 regime.port <- regime.portfolios(regime, combine.portfolios(list(p.short.1, p.short.2)))
 ```
 
